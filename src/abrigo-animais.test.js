@@ -29,3 +29,53 @@ describe('Abrigo de Animais', () => {
       expect(resultado.erro).toBeFalsy();
   });
 });
+
+
+describe("Abrigo de Animais - Novos Testes ", () => {
+  let abrigo;
+
+  beforeEach(() => {
+    abrigo = new AbrigoAnimais();
+  });
+
+  test("caso válido com adoção única", () => {
+    const res = abrigo.encontraPessoas("RATO,BOLA", "RATO,NOVELO", "Rex,Fofo");
+    expect(res).toEqual({
+      lista: ["Fofo - abrigo", "Rex - pessoa 1"].sort(),
+    });
+  });
+
+  test("erro de animal inválido", () => {
+    const res = abrigo.encontraPessoas("CAIXA,RATO", "RATO,BOLA", "Lulu");
+    expect(res).toEqual({ erro: "Animal inválido" });
+  });
+
+  test("erro de brinquedo duplicado", () => {
+    const res = abrigo.encontraPessoas("RATO,RATO,BOLA", "NOVELO", "Rex");
+    expect(res).toEqual({ erro: "Brinquedo inválido" });
+  });
+
+  test("empate entre pessoas → fica no abrigo", () => {
+    const res = abrigo.encontraPessoas("RATO,BOLA", "RATO,BOLA", "Rex");
+    expect(res).toEqual({ lista: ["Rex - abrigo"] });
+  });
+
+  test("limite de 3 adoções por pessoa", () => {
+    const ordem = "Rex,Mimi,Fofo,Zero,Bola,Bebe";
+    const res = abrigo.encontraPessoas(
+      "RATO,BOLA,LASER,NOVELO,CAIXA",
+      "RATO,BOLA,LASER,NOVELO,CAIXA",
+      ordem
+    );
+    const adotadosP1 = res.lista.filter((l) => l.includes("pessoa 1")).length;
+    expect(adotadosP1).toBeLessThanOrEqual(3);
+  });
+
+  test("Loco só sai se houver companhia", () => {
+    let res = abrigo.encontraPessoas("SKATE,RATO", "SKATE,RATO", "Loco");
+    expect(res).toEqual({ lista: ["Loco - abrigo"] });
+
+    res = abrigo.encontraPessoas("RATO,BOLA,SKATE", "NOVELO", "Rex,Loco");
+    expect(res.lista).toContain("Loco - pessoa 1");
+  });
+});
